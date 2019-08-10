@@ -11,6 +11,8 @@ class SudokuGame:
 
     game = None
     divider_line = 37*'-'
+    element_options = [1,2,3,4,5,6,7,8,9]
+    divider_block = 3
 
     def __init__(self):
         self.game = np.array([
@@ -53,4 +55,56 @@ class SudokuGame:
         for row in self.game:
             print(self.row_to_string(row))
             self.print_divider_line()
+
+    def get_element_row_options(self, row_index):
+        """Get all possible elements in a row.
+
+        Args:
+            row_index (int): index of the chosen row.
+
+        Returns:
+            Array with available elements in row.
+
+        """
+
+        row_elements = self.game[row_index][np.nonzero(self.game[row_index])]
+        return np.setdiff1d(self.element_options, row_elements)
+
+    def get_element_column_options(self, column_index):
+        """Get all possible elements in a column.
+
+        Args:
+            column_index (int): index of the chosen column.
+
+        Returns:
+            Array with available elements in column.
+
+        """
+
+        column_elements = self.game[:,column_index][
+            np.nonzero(self.game[:,column_index])
+        ]
+        return np.setdiff1d(self.element_options, column_elements)
+
+    def get_element_block_options(self, row_index, column_index):
+        """Get all possible elements in a block.
+
+        Args:
+            row_index (int): index row of chosen element.
+            column_index (int): index column of chosen element.
+
+        Returns:
+            Array with available elements in a block.
+
+        """
+
+        block_row = row_index//self.divider_block
+        block_column = column_index//self.divider_block
+        block = self.game[
+            block_row : block_row + self.divider_block,
+            block_column : block_column + self.divider_block
+        ]
+        block_elements = block[np.nonzero(block)]
+        return np.setdiff1d(self.element_options, block_elements)
+
 
