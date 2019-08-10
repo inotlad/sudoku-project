@@ -98,13 +98,15 @@ class SudokuGame:
 
         """
 
-        block_row = row_index//self.divider_block
-        block_column = column_index//self.divider_block
+        block_row = int(row_index/self.divider_block)*self.divider_block
+        block_column = int(column_index/self.divider_block)*self.divider_block
         block = self.game[
             block_row : block_row + self.divider_block,
             block_column : block_column + self.divider_block
         ]
         block_elements = block[np.nonzero(block)]
         return np.setdiff1d(self.element_options, block_elements)
+
+
 
 
