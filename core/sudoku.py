@@ -11,7 +11,7 @@ class SudokuGame:
 
     game = None
     divider_line = 37*'-'
-    element_options = [1,2,3,4,5,6,7,8,9]
+    default_element_options = [1,2,3,4,5,6,7,8,9]
     divider_block = 3
 
     def __init__(self):
@@ -45,9 +45,9 @@ class SudokuGame:
         string_row = '|'
         for element in row:
             if element:
-                string_row = string_row + ' ' + str(element) + ' |'
+                string_row = f"{string_row} {str(element)} |"
             else:
-                string_row = string_row + '   |'
+                string_row = f"{string_row}   |"
         return string_row
 
     def print_game(self):
@@ -68,7 +68,7 @@ class SudokuGame:
         """
 
         row_elements = self.game[row_index][np.nonzero(self.game[row_index])]
-        return np.setdiff1d(self.element_options, row_elements)
+        return np.setdiff1d(self.default_element_options, row_elements)
 
     def get_element_column_options(self, column_index):
         """Get all possible elements in a column.
@@ -84,7 +84,7 @@ class SudokuGame:
         column_elements = self.game[:,column_index][
             np.nonzero(self.game[:,column_index])
         ]
-        return np.setdiff1d(self.element_options, column_elements)
+        return np.setdiff1d(self.default_element_options, column_elements)
 
     def get_element_block_options(self, row_index, column_index):
         """Get all possible elements in a block.
@@ -105,7 +105,66 @@ class SudokuGame:
             block_column : block_column + self.divider_block
         ]
         block_elements = block[np.nonzero(block)]
-        return np.setdiff1d(self.element_options, block_elements)
+        return np.setdiff1d(self.default_element_options, block_elements)
+
+    def get_element_options(self, row_index, column_index):
+        """Get all options from a given element.
+
+        Args:
+            row_index (int): index row of chosen element.
+            column_index (int): index column of chosen element.
+
+        Returns:
+            Array with available options in a element.
+
+        """
+
+        row_options = self.get_element_row_options(row_index)
+        column_options = self.get_element_column_options(column_index)
+        block_options = self.get_element_block_options(
+            row_index,
+            column_index
+        )
+        options_element = np.intersect1d(
+            np.intersect1d(row_options, column_options),
+            block_options
+        )
+        return options_element
+
+    def get_blank_indexes(self):
+        """Get all existing blank elements index in game.
+
+        """
+
+        self.blank_row_index, self.blank_column_index = np.nonzero(
+            self.game == None
+        )
+
+    def get_blank_options(self):
+        """Get all options for all blank elements index.
+
+        """
+
+        self.get_blank_indexes()
+        self.blank_elements = list()
+        for index, value in enumerate(self.blank_row_index):
+            row_index = value
+            column_index = self.blank_column_index[index]
+            options_element = self.get_element_options(
+                row_index,
+                column_index
+            )
+            self.blank_elements.append(options_element)
+
+
+
+
+
+
+
+
+
+
 
 
 
