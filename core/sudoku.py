@@ -13,6 +13,9 @@ class SudokuGame:
     divider_line = 37*'-'
     default_element_options = [1,2,3,4,5,6,7,8,9]
     divider_block = 3
+    blank_row_index = list()
+    blank_column_index = list()
+    blank_elements = list()
 
     def __init__(self):
         self.game = np.array([
@@ -156,16 +159,76 @@ class SudokuGame:
             )
             self.blank_elements.append(options_element)
 
+    def get_all_options_in_one_array(self, indexes):
+        """Concatenate all elements options in one array
 
+        Args:
+            indexes (array): list of indexes in blank_elements array
 
+        Returns:
+            Array with all chosen elements options.
 
+        """
 
+        options = np.array([])
+        for index in indexes:
+            options = np.concatenate((options, self.blank_elements[index]))
+        return options
 
+    def short_element_options_from_row(self, index):
+        """Eliminate impossible element options using row options from other
+        row elements.
 
+        Args:
+            index (int): index of chosen element in blamk element array.
 
+        """
 
+        row_index = self.blank_row_index[index]
+        all_blank_row = np.where(self.blank_row_index==row_index)[0]
+        all_blank_row = all_blank_row[all_blank_row != index]
+        if all_blank_row.size > 0:
+            other_options = self.get_all_options_in_one_array(all_blank_row)
+            options = self.blank_elements[index]
+            for option in options:
+                if not option in other_options:
+                    self.blank_elements[index] = np.array([option])
 
+    def short_element_options_from_column(self, index):
+        """Eliminate impossible element options using column options from
+        other column elements.
 
+        Args:
+            index (int): index of chosen element in blamk element array.
 
+        """
+
+        column_index = self.blank_column_index[index]
+        all_blank_column = np.where(self.blank_column_index==column_index)[0]
+        all_blank_column = all_blank_column[all_blank_column != index]
+        if all_blank_column.size > 0:
+            other_options = self.get_all_options_in_one_array(all_blank_column)
+            options = self.blank_elements[index]
+            for option in options:
+                if not option in other_options:
+                    self.blank_elements[index] = np.array([option])
+
+    def complete_game(self):
+        """Complete blank elements in game until there is no blank element.
+
+        """
+        
+        while True:
+            self.get_blank_options()
+            for index in range(len(self.blank_elements)):
+                self.short_element_options_from_row(index)
+                self.short_element_options_from_column(index)
+                if self.blank_elements[index].size == 1:
+                    self.game[
+                        self.blank_row_index[index],
+                        self.blank_column_index[index]
+                    ] = self.blank_elements[index][0]
+            if len(self.blank_elements) < 1:
+                break
 
 
